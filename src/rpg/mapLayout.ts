@@ -35,14 +35,16 @@ export function assignMapPositions(projects: CategorizedProject[]): Project[] {
     const base = BASE_POSITIONS[project.category];
     const index = counters[project.category] ?? 0;
     counters[project.category] = index + 1;
-    const offsetX = (index % 4) * 36;
-    const offsetY = Math.floor(index / 4) * 36;
+    // Stacked vertically, not in a grid: region labels are full project
+    // names (can run 15-20+ characters) — spreading horizontally at 36px
+    // spacing made adjacent labels in the same cluster overlap as soon as
+    // a category held more than one pinned project.
     const region: MapNode = {
       id: project.repository,
       label: project.name,
       icon: iconOverride ?? CATEGORY_ICONS[project.category],
-      x: base.x + offsetX,
-      y: base.y + offsetY,
+      x: base.x,
+      y: base.y + index * 34,
       category: project.category,
     };
     return { ...projectFields, region };

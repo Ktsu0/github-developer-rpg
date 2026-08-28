@@ -67,6 +67,41 @@ export const curatedProjects: CuratedProject[] = [
     status: "completed",
     icon: "🤝",
   },
+  // Descrições genéricas abaixo — os repositórios não têm descrição no
+  // GitHub, então usei o que dá pra inferir honestamente do nome/stack.
+  // Vale ajustar se quiser um texto mais narrativo.
+  {
+    repository: "siteMysticReact",
+    name: "Site Mystic",
+    description: "Site pessoal construído em React.",
+    category: "projects",
+    status: "completed",
+    icon: "🏠",
+  },
+  {
+    repository: "Copa-do-Mundo",
+    name: "Copa do Mundo",
+    description: "Projeto sobre a Copa do Mundo.",
+    category: "projects",
+    status: "completed",
+    icon: "🏠",
+  },
+  {
+    repository: "API_Ecomerce",
+    name: "API E-commerce",
+    description: "API para uma loja virtual.",
+    category: "backend",
+    status: "completed",
+    icon: "⚙️",
+  },
+  {
+    repository: "HarvestProgrammer",
+    name: "Harvest Programmer",
+    description: "Projeto publicado em harvest-programmer.vercel.app.",
+    category: "games",
+    status: "completed",
+    icon: "🎮",
+  },
 ];
 
 /**
