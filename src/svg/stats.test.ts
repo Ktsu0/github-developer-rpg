@@ -10,23 +10,26 @@ const profile: DeveloperProfile = {
   statistics: { repositories: 12, commits: 300, pullRequests: 8, issues: 3, releases: 2, contributions: 12 },
   projects: [],
   quests: [],
+  manualQuests: [],
   achievements: [],
   bosses: [],
   currentQuest: { objective: "x", statusPercent: 0, nextObjective: "y" },
 };
 
 describe("generateStatsSvg", () => {
-  it("renders level, xp, all five attribute labels, and repo/commit/PR counts", () => {
+  it("renders the level medallion, XP, all five attribute labels, and repo/commit/PR/release counts", () => {
     const svg = generateStatsSvg(profile);
-    expect(svg).toContain("Level 7");
+    expect(svg).toContain(">7<");
     expect(svg).toContain("XP 850");
     expect(svg).toContain("INTELLIGENCE");
     expect(svg).toContain("CRAFTING");
     expect(svg).toContain("EXPLORATION");
     expect(svg).toContain("AUTOMATION");
     expect(svg).toContain("PROBLEM SOLVING");
-    expect(svg).toContain("Repos 12");
-    expect(svg).toContain("Commits 300");
+    expect(svg).toContain("📦 12");
+    expect(svg).toContain("💾 300");
+    expect(svg).toContain("🔀 8");
+    expect(svg).toContain("🚀 2");
   });
 
   it("stays well under the 50KB budget from spec §6", () => {

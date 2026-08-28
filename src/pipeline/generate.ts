@@ -10,7 +10,7 @@ import { generateStatsSvg } from "../svg/stats";
 import { buildSections, buildImageUrls } from "../readme/sections";
 import { applyMarkers } from "../readme/applyMarkers";
 import { developer } from "../../config/developer";
-import { curatedProjects } from "../../config/projects";
+import { curatedProjects, manualQuests } from "../../config/projects";
 import { bosses } from "../../config/bosses";
 import { currentQuest } from "../../config/currentQuest";
 
@@ -31,6 +31,7 @@ export interface GenerateResult {
 const profileConfig: BuildProfileConfig = {
   developer,
   curatedProjects,
+  manualQuests,
   bosses,
   currentQuest,
 };

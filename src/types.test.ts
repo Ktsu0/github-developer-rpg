@@ -25,6 +25,7 @@ describe("domain types", () => {
       },
       projects: [],
       quests: [],
+      manualQuests: [],
       achievements: [],
       bosses: [],
       currentQuest: {

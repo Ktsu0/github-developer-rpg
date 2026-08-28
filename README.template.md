@@ -1,48 +1,57 @@
-# Hi, I'm Gabriel Wagner 👋
+<div align="center">
 
 <!-- RPG:START:HERO -->
 <!-- RPG:END:HERO -->
 
-## Character Profile
-
-<!-- RPG:START:PROFILE -->
-<!-- RPG:END:PROFILE -->
-
-## Inventory
+### 🎒 Inventory
 
 <!-- RPG:START:INVENTORY -->
 <!-- RPG:END:INVENTORY -->
 
-## World Map
+</div>
+
+## 🗺️ World Map
+
+<div align="center">
 
 <!-- RPG:START:WORLDMAP -->
 <!-- RPG:END:WORLDMAP -->
 
-## Quest Log
+</div>
+
+## 📜 Quest Log
 
 <!-- RPG:START:QUESTS -->
 <!-- RPG:END:QUESTS -->
 
-## Bosses
+## 👹 Bosses
 
 <!-- RPG:START:BOSSES -->
 <!-- RPG:END:BOSSES -->
 
-## Achievements
+## 🏆 Achievements
 
 <!-- RPG:START:ACHIEVEMENTS -->
 <!-- RPG:END:ACHIEVEMENTS -->
 
-## GitHub Stats
+<div align="center">
+
+### 📊 GitHub Stats
 
 <!-- RPG:START:STATS -->
 <!-- RPG:END:STATS -->
 
-## Current Quest
+</div>
+
+## 🎯 Current Quest
 
 <!-- RPG:START:CURRENTQUEST -->
 <!-- RPG:END:CURRENTQUEST -->
 
 ---
 
+<div align="center">
+
 _Every developer has a world to build._
+
+</div>

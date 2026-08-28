@@ -9,6 +9,8 @@ export interface CuratedProject {
   category: ProjectCategory;
   status: QuestStatus;
   icon: string;
+  /** Overrides the default github.com/<owner>/<repo> link — e.g. a live site instead of the repo. */
+  url?: string;
 }
 
 /**
@@ -62,6 +64,7 @@ export function categorizeRepo(
       category: match.category,
       status: match.status,
       curated: true,
+      url: match.url ?? repo.html_url,
       source,
       icon: match.icon,
     };
@@ -76,6 +79,7 @@ export function categorizeRepo(
     category: heuristicCategory(repo),
     status: "in-progress",
     curated: false,
+    url: repo.html_url,
     source,
   };
 }

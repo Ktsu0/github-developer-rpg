@@ -1,5 +1,12 @@
 import type { RawGithubData } from "../github/types";
-import type { Boss, CurrentQuest, DeveloperConfig, DeveloperProfile, Statistics } from "../types";
+import type {
+  Boss,
+  CurrentQuest,
+  DeveloperConfig,
+  DeveloperProfile,
+  ManualQuest,
+  Statistics,
+} from "../types";
 import { categorizeRepo, type CuratedProject } from "./categorize";
 import { assignMapPositions } from "./mapLayout";
 import { calculateXp } from "./xp";
@@ -10,6 +17,7 @@ import { calculateAchievements } from "./achievements";
 export interface BuildProfileConfig {
   developer: DeveloperConfig;
   curatedProjects: CuratedProject[];
+  manualQuests: ManualQuest[];
   bosses: Boss[];
   currentQuest: CurrentQuest;
 }
@@ -34,7 +42,8 @@ export function buildProfile(
     contributions: raw.contributions.totalRepositoryContributions,
   };
 
-  const completedQuests = quests.filter((q) => q.status === "completed").length;
+  const manualCompletedQuests = config.manualQuests.filter((q) => q.status === "completed").length;
+  const completedQuests = quests.filter((q) => q.status === "completed").length + manualCompletedQuests;
   const xp = calculateXp({
     commits: statistics.commits,
     pullRequests: statistics.pullRequests,
@@ -69,7 +78,7 @@ export function buildProfile(
     mergedPullRequests: raw.mergedPullRequests,
   });
 
-  const achievements = calculateAchievements(statistics, quests.length);
+  const achievements = calculateAchievements(statistics, quests.length + config.manualQuests.length);
 
   return {
     identity: config.developer,
@@ -79,6 +88,7 @@ export function buildProfile(
     statistics,
     projects,
     quests,
+    manualQuests: config.manualQuests,
     achievements,
     bosses: config.bosses,
     currentQuest: config.currentQuest,

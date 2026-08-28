@@ -68,8 +68,6 @@ const MARKER_README = [
   "# Ktsu0",
   "<!-- RPG:START:HERO -->",
   "<!-- RPG:END:HERO -->",
-  "<!-- RPG:START:PROFILE -->",
-  "<!-- RPG:END:PROFILE -->",
   "<!-- RPG:START:INVENTORY -->",
   "<!-- RPG:END:INVENTORY -->",
   "<!-- RPG:START:WORLDMAP -->",
@@ -110,8 +108,10 @@ describe("generate", () => {
 
     const updatedReadme = await readFile(readmePath, "utf-8");
     expect(updatedReadme).toContain("character.svg?v=test");
-    expect(updatedReadme).toContain("Level");
+    expect(updatedReadme).toContain("world-map.svg?v=test");
+    expect(updatedReadme).toContain("stats.svg?v=test");
     expect(updatedReadme).toContain("Portfólio Wagner");
+    expect(updatedReadme).toContain("shields.io/badge/-CSS");
   });
 
   it("reports changed: false when re-run produces an identical README", async () => {

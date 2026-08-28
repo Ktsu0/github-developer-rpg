@@ -1,4 +1,5 @@
 import type { CuratedProject } from "../src/rpg/categorize";
+import type { ManualQuest } from "../src/types";
 
 /**
  * Fixed list, not a heuristic (decision recorded in spec §5.1): the
@@ -67,3 +68,14 @@ export const curatedProjects: CuratedProject[] = [
     icon: "🤝",
   },
 ];
+
+/**
+ * Quests with no backing GitHub repo the collector can see (spec: private
+ * repos never appear via GET /users/{username}/repos, regardless of
+ * token). Hand-authored end to end, including the link — Quest Log only,
+ * never on the World Map.
+ *
+ * TODO: add Termo Infinito here once its live-site URL is confirmed —
+ * it's private, so its link should point to the site instead of GitHub.
+ */
+export const manualQuests: ManualQuest[] = [];

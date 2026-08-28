@@ -60,5 +60,17 @@ describe("categorizeRepo", () => {
     expect(result.name).toBe("Uncharted Land — mystery-repo");
     expect(result.status).toBe("in-progress");
     expect(result.icon).toBeUndefined();
+    expect(result.url).toBe("https://github.com/Ktsu0/some-repo");
+  });
+
+  it("links to the repo's html_url when the curated entry has no url override", () => {
+    const result = categorizeRepo(repo({ name: "financeiro" }), curated);
+    expect(result.url).toBe("https://github.com/Ktsu0/some-repo");
+  });
+
+  it("links to the curated url override instead of the repo when present (e.g. a private repo's live site)", () => {
+    const withUrl: CuratedProject[] = [{ ...curated[0]!, url: "https://financeiro.example.com" }];
+    const result = categorizeRepo(repo({ name: "financeiro" }), withUrl);
+    expect(result.url).toBe("https://financeiro.example.com");
   });
 });

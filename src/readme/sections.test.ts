@@ -17,10 +17,20 @@ const profile: DeveloperProfile = {
       region: { id: "Financeiro", label: "Financeiro", icon: "🏦", x: 0, y: 0, category: "finance" },
       status: "completed",
       curated: true,
+      url: "https://github.com/Ktsu0/Financeiro",
       source: { language: "JavaScript", topics: [], createdAt: "2026-01-21", pushedAt: "2026-01-21" },
     },
   ],
   quests: [],
+  manualQuests: [
+    {
+      name: "Termo Infinito",
+      description: "A world of mini-games.",
+      status: "completed",
+      url: "https://termo-infinito.example.com",
+      icon: "🎮",
+    },
+  ],
   achievements: [{ id: "first-quest", name: "First Quest", icon: "🏆", description: "desc", auto: true }],
   bosses: [],
   currentQuest: { objective: "Ship it", statusPercent: 40, nextObjective: "Ship more" },
@@ -43,7 +53,7 @@ describe("buildSections", () => {
   const sections = buildSections(profile, images);
 
   it("produces one entry per README marker", () => {
-    for (const key of ["HERO", "PROFILE", "INVENTORY", "WORLDMAP", "QUESTS", "BOSSES", "ACHIEVEMENTS", "STATS", "CURRENTQUEST"]) {
+    for (const key of ["HERO", "INVENTORY", "WORLDMAP", "QUESTS", "BOSSES", "ACHIEVEMENTS", "STATS", "CURRENTQUEST"]) {
       expect(sections).toHaveProperty(key);
     }
   });
@@ -54,9 +64,18 @@ describe("buildSections", () => {
     expect(sections.STATS).toContain("stats.svg?v=v1");
   });
 
+  it("renders detected languages as shields.io badges", () => {
+    expect(sections.INVENTORY).toContain("![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E");
+  });
+
   it("lists curated projects as quests and achievements", () => {
     expect(sections.QUESTS).toContain("Financeiro");
     expect(sections.ACHIEVEMENTS).toContain("First Quest");
+  });
+
+  it("links each quest — repo-backed projects to GitHub, manual quests to their curated url", () => {
+    expect(sections.QUESTS).toContain("[**Financeiro**](https://github.com/Ktsu0/Financeiro)");
+    expect(sections.QUESTS).toContain("[**Termo Infinito**](https://termo-infinito.example.com)");
   });
 
   it("falls back to a placeholder message when bosses are empty", () => {

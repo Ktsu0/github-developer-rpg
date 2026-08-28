@@ -8,6 +8,11 @@ describe("theme", () => {
     expect(THEME.glow).toBe("#ffb454");
     expect(THEME.accent).toBe("#54e0c7");
   });
+
+  it("keeps a muted text tone distinct from the (too-low-contrast-for-text) border tone", () => {
+    expect(THEME.muted).toBeDefined();
+    expect(THEME.muted).not.toBe(THEME.pathBase);
+  });
 });
 
 describe("escapeXml", () => {

@@ -10,6 +10,7 @@ function baseProject(overrides: Partial<CategorizedProject>): CategorizedProject
     category: "games",
     status: "completed",
     curated: true,
+    url: "https://github.com/Ktsu0/some-project",
     source: { language: "GDScript", topics: [], createdAt: "2025-01-01", pushedAt: "2025-01-01" },
     ...overrides,
   };

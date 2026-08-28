@@ -33,11 +33,27 @@ export interface Project {
   region: MapNode;
   status: QuestStatus;
   curated: boolean;
+  /** github.com/<owner>/<repo> by default, or a curated override (e.g. a live site for a private repo). */
+  url: string;
   source: ProjectSource;
 }
 
 /** A Quest is the curated subset of Project shown in the Quest Log (spec §4). */
 export type Quest = Project;
+
+/**
+ * A curated quest with no backing GitHub repo at all (e.g. a private
+ * project the collector's token can't see) — hand-authored end to end,
+ * including its link. Appears in the Quest Log only, never on the World
+ * Map (it has no ProjectSource/region to place there).
+ */
+export interface ManualQuest {
+  name: string;
+  description: string;
+  status: QuestStatus;
+  url: string;
+  icon: string;
+}
 
 export interface Piece {
   id: string;
@@ -103,6 +119,7 @@ export interface DeveloperProfile {
   statistics: Statistics;
   projects: Project[];
   quests: Quest[];
+  manualQuests: ManualQuest[];
   achievements: Achievement[];
   bosses: Boss[];
   currentQuest: CurrentQuest;
