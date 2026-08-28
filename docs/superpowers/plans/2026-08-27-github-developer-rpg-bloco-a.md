@@ -154,7 +154,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts", "scripts/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "scripts/**/*.test.ts", "config/**/*.test.ts"],
   },
 });
 ```
@@ -2133,7 +2133,23 @@ function profile(projects: Project[]): DeveloperProfile {
 
 describe("generateWorldMapSvg", () => {
   it("renders one labeled region per project", () => {
-    const svg = generateWorldMapSvg(profile([project({}), project({ name: "Antes de Dormir", repository: "antes-de-dormir" })]));
+    const svg = generateWorldMapSvg(
+      profile([
+        project({}),
+        project({
+          name: "Antes de Dormir",
+          repository: "antes-de-dormir",
+          region: {
+            id: "antes-de-dormir",
+            label: "Antes de Dormir",
+            icon: "🏠",
+            x: 400,
+            y: 420,
+            category: "projects",
+          },
+        }),
+      ])
+    );
     expect(svg).toContain("Financeiro");
     expect(svg).toContain("Antes de Dormir");
   });
