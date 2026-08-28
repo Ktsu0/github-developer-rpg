@@ -35,6 +35,17 @@ function profile(projects: Project[]): DeveloperProfile {
 }
 
 describe("generateWorldMapSvg", () => {
+  it("renders terrain and ambient texture visibly enough to read as a map, not a flat black void", () => {
+    const svg = generateWorldMapSvg(profile([project({})]));
+    // Regression: terrain motifs were opacity 0.06 (effectively invisible)
+    // before user feedback that the map looked like an empty black plane.
+    expect(svg).toContain('opacity="0.16"');
+    expect(svg).not.toContain('opacity="0.06"');
+    // Landmass blobs and the ambient dot scatter fill in the empty canvas.
+    expect((svg.match(/<ellipse/g) ?? []).length).toBeGreaterThan(0);
+    expect((svg.match(/<circle cx="\d+" cy="\d+" r="1(\.\d+)?" /g) ?? []).length).toBeGreaterThan(10);
+  });
+
   it("renders one labeled region per project", () => {
     const svg = generateWorldMapSvg(
       profile([

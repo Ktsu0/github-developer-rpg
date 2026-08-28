@@ -9,6 +9,12 @@ export const RawRepoSchema = z.object({
   created_at: z.string(),
   pushed_at: z.string(),
   html_url: z.string(),
+  // GitHub returns "" rather than null for "no homepage" fairly often —
+  // normalized to null so downstream code has one falsy shape to check.
+  homepage: z
+    .string()
+    .nullish()
+    .transform((value) => (value && value.trim().length > 0 ? value : null)),
 });
 
 export type RawRepo = z.infer<typeof RawRepoSchema> & {

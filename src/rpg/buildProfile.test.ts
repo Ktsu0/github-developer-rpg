@@ -38,6 +38,7 @@ function rawData(): RawGithubData {
         created_at: "2026-01-21T00:00:00Z",
         pushed_at: "2026-01-21T00:00:00Z",
         html_url: "https://github.com/Ktsu0/Financeiro",
+        homepage: null,
         languages: { JavaScript: 300, CSS: 20 },
         releaseCount: 1,
         hasWorkflows: true,
@@ -51,6 +52,7 @@ function rawData(): RawGithubData {
         created_at: "2026-02-01T00:00:00Z",
         pushed_at: "2026-02-01T00:00:00Z",
         html_url: "https://github.com/Ktsu0/mystery-repo",
+        homepage: "https://mystery-repo.example.com",
         languages: { TypeScript: 100 },
         releaseCount: 0,
         hasWorkflows: false,
@@ -91,5 +93,19 @@ describe("buildProfile", () => {
     expect(profile.level).toBeGreaterThanOrEqual(1);
     expect(profile.achievements.map((a) => a.id)).toContain("first-quest");
     expect(profile.currentQuest.objective).toBe("Ship it");
+  });
+
+  it("credits Crafting for a repo with a live deployed site even with zero GitHub releases", () => {
+    const profile = buildProfile(rawData(), {
+      developer: { username: "Ktsu0", name: "Gabriel Wagner", class: "Full Stack Developer" },
+      curatedProjects,
+      manualQuests,
+      bosses: [],
+      currentQuest: { objective: "Ship it", statusPercent: 50, nextObjective: "Ship more" },
+    });
+
+    // Financeiro (1 release) + mystery-repo (0 releases, but a homepage) = 2 crafted repos.
+    // scale(2, ATTRIBUTE_CAPS.crafting=8) = round(2/8*100) = 25.
+    expect(profile.attributes.crafting).toBe(25);
   });
 });

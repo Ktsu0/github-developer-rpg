@@ -57,20 +57,22 @@ export function buildProfile(
   const sixMonthsAgo = new Date(now.getTime() - SIX_MONTHS_MS);
   const allLanguages = new Set<string>();
   const recentLanguages = new Set<string>();
-  let reposWithReleases = 0;
+  let craftedRepos = 0;
   let reposWithWorkflows = 0;
   for (const repo of raw.repos) {
     for (const lang of Object.keys(repo.languages)) {
       allLanguages.add(lang);
       if (new Date(repo.pushed_at) >= sixMonthsAgo) recentLanguages.add(lang);
     }
-    if (repo.releaseCount > 0) reposWithReleases += 1;
+    // "Crafted" = shipped somehow: a formal release, or a live deployed
+    // site — a repo can earn credit either way, not releases alone.
+    if (repo.releaseCount > 0 || repo.homepage) craftedRepos += 1;
     if (repo.hasWorkflows) reposWithWorkflows += 1;
   }
 
   const attributes = calculateAttributes({
     languageCount: allLanguages.size,
-    reposWithReleases,
+    craftedRepos,
     totalRepos: raw.repos.length,
     recentLanguageCount: recentLanguages.size,
     reposWithWorkflows,

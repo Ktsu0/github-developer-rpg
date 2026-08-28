@@ -5,7 +5,7 @@ describe("calculateAttributes", () => {
   it("returns all zeros for no signal", () => {
     const attrs = calculateAttributes({
       languageCount: 0,
-      reposWithReleases: 0,
+      craftedRepos: 0,
       totalRepos: 0,
       recentLanguageCount: 0,
       reposWithWorkflows: 0,
@@ -24,7 +24,7 @@ describe("calculateAttributes", () => {
   it("scales proportionally to the documented cap and clamps at 100", () => {
     const attrs = calculateAttributes({
       languageCount: ATTRIBUTE_CAPS.intelligence * 2,
-      reposWithReleases: ATTRIBUTE_CAPS.crafting,
+      craftedRepos: ATTRIBUTE_CAPS.crafting,
       totalRepos: 20,
       recentLanguageCount: 1,
       reposWithWorkflows: 0,
@@ -38,7 +38,7 @@ describe("calculateAttributes", () => {
   it("never returns a negative value", () => {
     const attrs = calculateAttributes({
       languageCount: -5,
-      reposWithReleases: 0,
+      craftedRepos: 0,
       totalRepos: 0,
       recentLanguageCount: 0,
       reposWithWorkflows: 0,

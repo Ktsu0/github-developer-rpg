@@ -10,7 +10,7 @@ export const startingGroundsProjects: CuratedProject[] = [
   {
     repository: "portifolio_wagner",
     name: "Portfólio Wagner",
-    description: "Meus primeiros passos em desenvolvimento web.",
+    description: "A primeira fortaleza erguida nesta jornada: um portfólio simples que marcou a virada de estudante para desenvolvedor.",
     category: "starting-grounds",
     status: "completed",
     icon: "🌱",
@@ -18,7 +18,7 @@ export const startingGroundsProjects: CuratedProject[] = [
   {
     repository: "portifolio_react",
     name: "Portfólio React",
-    description: "Primeiro contato com React, ainda aprendendo.",
+    description: "Segunda expedição, primeira vez pisando em terras React — testando os limites do que tinha acabado de aprender.",
     category: "starting-grounds",
     status: "completed",
     icon: "🌱",
@@ -26,7 +26,7 @@ export const startingGroundsProjects: CuratedProject[] = [
   {
     repository: "login_page",
     name: "Tela de Login",
-    description: "Prática de formulários e validação em JavaScript puro.",
+    description: "Uma arena de treino: formulários, validação e as primeiras batalhas contra bugs de front-end em JavaScript puro.",
     category: "starting-grounds",
     status: "completed",
     icon: "🌱",
@@ -34,7 +34,7 @@ export const startingGroundsProjects: CuratedProject[] = [
   {
     repository: "front_end_react",
     name: "Front End React",
-    description: "Projeto de front-end para a matéria de Back-end.",
+    description: "Missão da matéria de Back-end que virou desculpa pra praticar front-end de verdade.",
     category: "starting-grounds",
     status: "completed",
     icon: "🌱",
@@ -46,7 +46,7 @@ export const curatedProjects: CuratedProject[] = [
   {
     repository: "Financeiro",
     name: "Financeiro",
-    description: "Dashboard para controle de gastos pessoais.",
+    description: "Um cofre digital forjado pra domar o caos das finanças pessoais — registra gastos, revela padrões, devolve controle.",
     category: "finance",
     status: "completed",
     icon: "🏦",
@@ -54,7 +54,7 @@ export const curatedProjects: CuratedProject[] = [
   {
     repository: "antes-de-dormir",
     name: "Antes de Dormir",
-    description: "Plataforma para publicar histórias curtas.",
+    description: "Uma plataforma pensada pra dar palco a histórias curtas, escritas antes que o sono vença.",
     category: "projects",
     status: "completed",
     icon: "🏠",
@@ -62,18 +62,17 @@ export const curatedProjects: CuratedProject[] = [
   {
     repository: "PlantaGamer",
     name: "PlantaGamer",
-    description: "Projeto em time aplicando Scrum.",
+    description: "Missão em grupo: aplicar Scrum de verdade, sobreviver às sprints e sair inteiro do outro lado com a equipe.",
     category: "team",
     status: "completed",
     icon: "🤝",
   },
-  // Descrições genéricas abaixo — os repositórios não têm descrição no
-  // GitHub, então usei o que dá pra inferir honestamente do nome/stack.
-  // Vale ajustar se quiser um texto mais narrativo.
+  // As quatro abaixo não têm descrição no GitHub — o enredo é meu, baseado
+  // no nome/stack de cada uma. Ajuste à vontade se quiser algo mais preciso.
   {
     repository: "siteMysticReact",
     name: "Site Mystic",
-    description: "Site pessoal construído em React.",
+    description: "Site pessoal construído em React, testando um visual mais autoral e místico.",
     category: "projects",
     status: "completed",
     icon: "🏠",
@@ -81,7 +80,7 @@ export const curatedProjects: CuratedProject[] = [
   {
     repository: "Copa-do-Mundo",
     name: "Copa do Mundo",
-    description: "Projeto sobre a Copa do Mundo.",
+    description: "Tributo em código à maior competição do futebol — lógica, dados e interface na mesma partida.",
     category: "projects",
     status: "completed",
     icon: "🏠",
@@ -89,7 +88,7 @@ export const curatedProjects: CuratedProject[] = [
   {
     repository: "API_Ecomerce",
     name: "API E-commerce",
-    description: "API para uma loja virtual.",
+    description: "Os bastidores de uma loja virtual: rotas, produtos e pedidos costurados numa API.",
     category: "backend",
     status: "completed",
     icon: "⚙️",
@@ -97,7 +96,7 @@ export const curatedProjects: CuratedProject[] = [
   {
     repository: "HarvestProgrammer",
     name: "Harvest Programmer",
-    description: "Projeto publicado em harvest-programmer.vercel.app.",
+    description: "Publicado ao vivo em harvest-programmer.vercel.app — um projeto colhido do código e posto pra rodar em produção.",
     category: "games",
     status: "completed",
     icon: "🎮",
@@ -108,9 +107,14 @@ export const curatedProjects: CuratedProject[] = [
  * Quests with no backing GitHub repo the collector can see (spec: private
  * repos never appear via GET /users/{username}/repos, regardless of
  * token). Hand-authored end to end, including the link — Quest Log only,
- * never on the World Map.
- *
- * TODO: add Termo Infinito here once its live-site URL is confirmed —
- * it's private, so its link should point to the site instead of GitHub.
+ * never on the World Map (no ProjectSource/region to place it there).
  */
-export const manualQuests: ManualQuest[] = [];
+export const manualQuests: ManualQuest[] = [
+  {
+    name: "Termo Infinito",
+    description: "Um mundo de mini-jogos — o projeto mais ambicioso da jornada até aqui. Hoje é privado, mas roda ao vivo.",
+    status: "completed",
+    url: "https://termo-infinito.vercel.app/",
+    icon: "🎮",
+  },
+];

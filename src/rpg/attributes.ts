@@ -2,7 +2,8 @@ import type { Attributes } from "../types";
 
 export interface AttributeInputs {
   languageCount: number;
-  reposWithReleases: number;
+  /** Repos with a formal GitHub release OR a live deployed site (homepage set) — either counts as "crafted", not just releases alone. */
+  craftedRepos: number;
   totalRepos: number;
   recentLanguageCount: number;
   reposWithWorkflows: number;
@@ -26,7 +27,7 @@ function scale(value: number, cap: number): number {
 export function calculateAttributes(inputs: AttributeInputs): Attributes {
   return {
     intelligence: scale(inputs.languageCount, ATTRIBUTE_CAPS.intelligence),
-    crafting: scale(inputs.reposWithReleases, ATTRIBUTE_CAPS.crafting),
+    crafting: scale(inputs.craftedRepos, ATTRIBUTE_CAPS.crafting),
     exploration: scale(inputs.recentLanguageCount, ATTRIBUTE_CAPS.exploration),
     automation: scale(inputs.reposWithWorkflows, ATTRIBUTE_CAPS.automation),
     problemSolving: scale(

@@ -30,13 +30,39 @@ const PINNED_CATEGORIES: ProjectCategory[] = ["games", "backend", "finance", "te
 /** Roads no longer radiate from "starting-grounds" now that it isn't pinned — a fixed central hub instead. */
 const ROAD_HUB = { x: 300, y: 250 };
 
+/** Soft, irregular "territory" blob behind a region cluster — cheap organic shape from a few overlapping ellipses (no hand-authored path data). */
+function renderLandmass(cx: number, cy: number): string {
+  return `<g opacity="0.05">
+    <ellipse cx="${cx}" cy="${cy + 8}" rx="100" ry="62" fill="${THEME.accent}"/>
+    <ellipse cx="${cx - 42}" cy="${cy - 14}" rx="62" ry="46" fill="${THEME.accent}"/>
+    <ellipse cx="${cx + 48}" cy="${cy + 2}" rx="58" ry="42" fill="${THEME.accent}"/>
+  </g>
+  <ellipse cx="${cx}" cy="${cy + 8}" rx="100" ry="62" fill="none" stroke="${THEME.accent}" stroke-width="1" opacity="0.14"/>`;
+}
+
 function renderTerrain(): string {
   return PINNED_CATEGORIES.map((category) => {
     const motif = TERRAIN_MOTIFS[category];
     if (!motif) return "";
     const base = BASE_POSITIONS[category];
-    return `<text x="${base.x + 10}" y="${base.y + 6}" font-size="76" text-anchor="middle" opacity="0.06">${motif}</text>`;
+    return `${renderLandmass(base.x, base.y)}
+  <text x="${base.x + 10}" y="${base.y + 6}" font-size="80" text-anchor="middle" opacity="0.16">${motif}</text>`;
   }).join("\n");
+}
+
+/** Deterministic scatter of faint "unexplored territory" specks — fills otherwise empty canvas so it reads as a map, not a void. */
+const AMBIENT_DOTS: { x: number; y: number; r: number }[] = [
+  { x: 60, y: 60, r: 1.4 }, { x: 320, y: 45, r: 1 }, { x: 480, y: 160, r: 1.2 },
+  { x: 110, y: 200, r: 1 }, { x: 340, y: 340, r: 1.4 }, { x: 500, y: 400, r: 1 },
+  { x: 250, y: 470, r: 1.2 }, { x: 60, y: 460, r: 1 }, { x: 560, y: 340, r: 1.3 },
+  { x: 40, y: 320, r: 1 }, { x: 280, y: 200, r: 1.1 }, { x: 460, y: 480, r: 1 },
+  { x: 200, y: 60, r: 1.2 }, { x: 550, y: 90, r: 1 }, { x: 150, y: 400, r: 1.1 },
+];
+
+function renderAmbientDots(): string {
+  return AMBIENT_DOTS.map(
+    (d) => `<circle cx="${d.x}" cy="${d.y}" r="${d.r}" fill="${THEME.accent}" opacity="0.3"/>`
+  ).join("");
 }
 
 function renderRoads(): string {
@@ -138,6 +164,7 @@ export function generateWorldMapSvg(profile: DeveloperProfile): string {
   <desc>Map of real GitHub repositories grouped into RPG regions.</desc>
   ${panelBackground(VIEWBOX_WIDTH, VIEWBOX_HEIGHT)}
   ${panelGrid(VIEWBOX_WIDTH, VIEWBOX_HEIGHT)}
+  ${renderAmbientDots()}
   ${renderTerrain()}
   ${renderRoads()}
   ${titleBar("🗺️", "WORLD MAP")}

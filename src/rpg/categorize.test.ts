@@ -12,6 +12,7 @@ function repo(overrides: Partial<RawRepo>): RawRepo {
     created_at: "2025-01-01T00:00:00Z",
     pushed_at: "2025-01-01T00:00:00Z",
     html_url: "https://github.com/Ktsu0/some-repo",
+    homepage: null,
     languages: { TypeScript: 100 },
     releaseCount: 0,
     hasWorkflows: false,
