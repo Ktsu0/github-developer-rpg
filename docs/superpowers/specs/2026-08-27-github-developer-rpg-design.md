@@ -386,8 +386,7 @@ gerada a partir de um bitmap.
 
 ```
 github-developer-rpg/
-├── .claude/
-│   └── CLAUDE.md                 # ver seção 12
+├── CLAUDE.md                      # ver seção 12
 ├── .github/workflows/update-profile.yml
 ├── assets/
 │   └── character/horse-rider.svg # arquivo-fonte do cavaleiro
@@ -401,20 +400,24 @@ github-developer-rpg/
 │   ├── rpg/                       # XP, Level, atributos, categorização,
 │   │                               #   achievements automáticos
 │   ├── svg/                       # geradores de character/world-map/stats
-│   └── readme/                    # aplica marcadores no README.md
+│   ├── readme/                    # aplica marcadores no README.md
+│   └── pipeline/                  # orquestra tudo acima (generate(), testável)
 ├── generated/                     # character.svg, world-map.svg, stats.svg
 ├── docs/superpowers/specs/        # este documento e specs futuras
-├── scripts/generate.ts            # orquestra o pipeline completo
+├── scripts/generate.ts            # CLI fino: lê env vars e chama src/pipeline
 ├── package.json / tsconfig.json
 └── README.md                      # README deste repositório (o motor)
 ```
 
-## 12. `.claude/CLAUDE.md` do projeto
+## 12. `CLAUDE.md` do projeto
 
 Pedido explícito do usuário: preservar a essência do projeto entre sessões
 e entre máquinas diferentes. Diferente da memória pessoal do assistente
-(local a esta máquina), o `.claude/CLAUDE.md` fica **versionado no git**,
-então viaja com qualquer `git clone` do repositório. Conteúdo:
+(local a esta máquina), o `CLAUDE.md` na raiz do repositório fica
+**versionado no git** — viaja com qualquer `git clone` — e é o caminho que
+o Claude Code carrega automaticamente ao abrir o projeto em qualquer
+sessão/máquina (`.claude/CLAUDE.md` não tem esse carregamento automático).
+Conteúdo:
 
 - O pitch de 1 parágrafo (seção 1 deste documento).
 - As decisões visuais e arquiteturais já travadas (seção 2–3), para que uma
