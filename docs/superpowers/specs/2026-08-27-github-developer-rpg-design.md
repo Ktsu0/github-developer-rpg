@@ -27,9 +27,22 @@ aprende e cria.**
 Este documento consolida a especificação original do usuário (71 seções, ver
 transcrição na conversa que originou este spec) com as decisões visuais e
 arquiteturais fechadas durante o brainstorming (companheiro visual +
-diálogo). Ele cobre o projeto completo em 14 fases — não apenas um MVP.
+diálogo). Ele cobre o projeto completo — não apenas um MVP visual — mas
+prioriza deliberadamente ter o sistema todo funcionando de ponta a ponta
+(com um personagem provisório) antes de investir na arte final do
+cavaleiro (ver faseamento em §13).
 
-## 2. Identidade visual (fechada)
+## 2. Identidade visual (fechada — é o alvo final, não o ponto de partida)
+
+**Faseamento (decisão do usuário, 2026-08-27):** o cavaleiro a cavalo
+descrito abaixo é a identidade visual **definitiva** do projeto, mas não é
+o que entra em produção primeiro. Antes de investir na arte do cavaleiro e
+nas animações SMIL, a prioridade é ter **o pipeline inteiro funcionando sem
+bugs** — coleta de dados reais, cálculo de XP/Level, geração do README,
+commit automático no `Ktsu0/Ktsu0` via Actions. Enquanto isso, o personagem
+é representado por um **emoji simples** (ver §2.4). O cavaleiro entra depois,
+como uma troca de "pele" sobre um sistema já validado ponta a ponta — ver o
+roadmap reordenado na seção 13.
 
 ### 2.1 Personagem: cavaleiro a cavalo
 
@@ -101,6 +114,32 @@ começa vazia e o cavaleiro aparece direto na primeira região com o idle.
 pose estática coerente como primeiro frame — se a animação não rodar (o
 GitHub eventualmente muda como faz proxy de imagens), o personagem
 continua visível e legível parado na posição correta.
+
+### 2.4 Placeholder da fase inicial: emoji
+
+Enquanto o pipeline de dados/automação (fases 0.x do roadmap, §13) está
+sendo construído e validado, o personagem é representado por um único
+emoji — **🧑‍💻** (technologist/pessoa no computador) — em vez do cavaleiro
+SVG. Escolhido em vez de 🧙/⚔️ por ser neutro em relação a fantasia
+(a spec original evita classes fictícias como Mago/Guerreiro, seção 17) e
+por combinar com "Full Stack Developer" como classe.
+
+Uso do placeholder em cada SVG, sempre sem animação de montagem/peças:
+
+- **`character.svg` (Hero):** o emoji centralizado, via `<text>` no SVG,
+  sobre o mesmo fundo/paleta definitivos (§2.2) — sem partículas, sem
+  fragmentos de código convergindo. Nome e classe já aparecem como texto
+  real abaixo, exatamente como na versão final.
+- **`world-map.svg`:** o mesmo emoji como marcador estático (`<text>`) na
+  região da quest atual, com no máximo o pulso simples de "presença"
+  (`ffb454`, já especificado em §2.3, passo 3) — sem trilha desenhada, sem
+  cavalgada.
+- **`stats.svg`:** inalterado — não depende do personagem.
+
+Nenhuma lógica do `RPG Engine`, do modelo de dados (§4) ou do `README
+Generator` (§8) referencia o personagem diretamente, então essa troca é
+isolada ao `SVG Generator` (§6) e não deve exigir mudanças em nenhuma outra
+camada quando o cavaleiro for introduzido depois.
 
 ## 3. Arquitetura: dois repositórios
 
@@ -220,6 +259,14 @@ aprendizado (texto manual, ex.: "Meus primeiros passos em desenvolvimento
 web").
 
 ## 6. Pipeline de geração de SVG
+
+**Nota de faseamento:** a descrição abaixo é o pipeline **final**, com o
+cavaleiro. Na fase inicial (§2.4, §13), os mesmos três arquivos são gerados
+pelos mesmos módulos (`src/svg/`), só que o "personagem" é o emoji fixo em
+vez do resultado da decomposição de `horse-rider.svg` em `Piece[]` — ou
+seja, a etapa de decompor/animar peças (itens 1 e 2 abaixo) fica sem
+efeito até a fase do cavaleiro; o restante do pipeline (dados reais →
+`DeveloperProfile` → SVG → README) já roda por completo desde o início.
 
 Três arquivos gerados em `generated/`, sempre a partir do
 `DeveloperProfile`:
@@ -379,31 +426,48 @@ então viaja com qualquer `git clone` do repositório. Conteúdo:
   developer-rpg-design.md`) e para o roadmap de 14 fases (seção 13).
 - Convenção de pastas (seção 11) resumida.
 
-## 13. Roadmap (14 fases, da spec original do usuário)
+## 13. Roadmap
 
-Mantido integralmente como o plano de execução de longo prazo:
+A spec original do usuário definia 14 fases terminando com o cavaleiro já
+pronto desde a fase 2. **Reordenado em 2026-08-27** por decisão explícita do
+usuário: primeiro provar que o sistema inteiro funciona sem bugs com um
+personagem trivial (emoji), só depois investir na arte/animação do
+cavaleiro. As 14 fases originais continuam todas presentes, apenas
+reagrupadas em dois blocos:
+
+### Bloco A — Bootstrap funcional (personagem = emoji, §2.4)
 
 ```
-1. Identidade visual        → FECHADA neste documento (seção 2)
-2. Criar avatar               → FECHADA (cavaleiro, assets/character/horse-rider.svg)
-3. SVG estático                → character.svg sem animação
-4. Separar avatar em peças     → grupos nomeados no SVG-fonte
-5. Criar animação               → SMIL (Hero + World Map)
-6. README estático              → primeira versão com dados reais, sem Actions
-7. Modelos TypeScript            → seção 4 deste documento
-8. GitHub API                     → src/github/
-9. RPG Engine                      → src/rpg/ (XP, Level, categorização §5, §7)
-10. Gerar SVG automaticamente        → src/svg/
-11. GitHub Actions                    → seção 9
-12. World Map                          → regiões reais + Starting Grounds (§5.1)
-13. Achievements/Bosses                 → auto + manual (§4)
-14. Otimização                            → orçamento de peso, SVGO, cache-busting (§3)
+A1. Modelos TypeScript      → seção 4 deste documento (DeveloperProfile e afins)
+A2. GitHub API                → src/github/ (Octokit, coleta real de Ktsu0)
+A3. RPG Engine                  → src/rpg/ (XP, Level, categorização §5, §7)
+A4. SVG estático (emoji)          → character.svg/world-map.svg/stats.svg
+                                      sem animação, personagem = 🧑‍💻 (§2.4)
+A5. README estático                 → primeira versão com dados reais, marcadores (§8)
+A6. Gerar SVG automaticamente          → src/svg/ ligado ao DeveloperProfile real
+A7. GitHub Actions                       → seção 9, publicando de fato em Ktsu0/Ktsu0
 ```
 
-Fases 1–7 formam o que a spec original chama de MVP (visual, sem
-automação); fases 8–14 fecham o motor de automação completo. Este spec
-cobre as 14 fases porque o usuário optou por planejar o projeto inteiro de
-uma vez, não em specs separados.
+**Critério de saída do Bloco A:** o perfil real `Ktsu0/Ktsu0` está no ar,
+atualizando sozinho 1x/dia, com dados reais (Level, XP, Quest Log, Stats,
+World Map com regiões reais incluindo Starting Grounds) — só o personagem
+ainda é o emoji. Nenhum bug conhecido no pipeline de coleta → geração →
+commit.
+
+### Bloco B — Introdução do cavaleiro (troca de "pele" sobre o Bloco A)
+
+```
+B1. SVG estático do cavaleiro   → assets/character/horse-rider.svg → pose de repouso
+B2. Separar avatar em peças       → grupos nomeados no SVG-fonte (§2.1)
+B3. Animação do Hero                → SMIL, montagem por fragmentos (§6, item 1)
+B4. Movimento no World Map            → trilha + cavalgada + idle (§2.3, §6 item 2)
+B5. Achievements/Bosses refinados       → conteúdo narrativo completo (§4)
+B6. Otimização                            → orçamento de peso, SVGO, cache-busting (§3, §14)
+```
+
+Cada item do Bloco B troca apenas módulos dentro de `src/svg/` (§6, §2.4) —
+`src/github/`, `src/rpg/`, `src/readme/` e o workflow de Actions do Bloco A
+não deveriam precisar mudar.
 
 ## 14. Riscos e considerações técnicas conhecidas
 
