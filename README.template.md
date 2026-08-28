@@ -24,11 +24,6 @@
 <!-- RPG:START:QUESTS -->
 <!-- RPG:END:QUESTS -->
 
-## 👹 Bosses
-
-<!-- RPG:START:BOSSES -->
-<!-- RPG:END:BOSSES -->
-
 ## 🏆 Achievements
 
 <!-- RPG:START:ACHIEVEMENTS -->

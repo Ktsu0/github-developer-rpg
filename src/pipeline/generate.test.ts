@@ -74,8 +74,6 @@ const MARKER_README = [
   "<!-- RPG:END:WORLDMAP -->",
   "<!-- RPG:START:QUESTS -->",
   "<!-- RPG:END:QUESTS -->",
-  "<!-- RPG:START:BOSSES -->",
-  "<!-- RPG:END:BOSSES -->",
   "<!-- RPG:START:ACHIEVEMENTS -->",
   "<!-- RPG:END:ACHIEVEMENTS -->",
   "<!-- RPG:START:STATS -->",

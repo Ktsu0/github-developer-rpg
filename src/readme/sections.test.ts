@@ -53,7 +53,7 @@ describe("buildSections", () => {
   const sections = buildSections(profile, images);
 
   it("produces one entry per README marker", () => {
-    for (const key of ["HERO", "INVENTORY", "WORLDMAP", "QUESTS", "BOSSES", "ACHIEVEMENTS", "STATS", "CURRENTQUEST"]) {
+    for (const key of ["HERO", "INVENTORY", "WORLDMAP", "QUESTS", "ACHIEVEMENTS", "STATS", "CURRENTQUEST"]) {
       expect(sections).toHaveProperty(key);
     }
   });
@@ -78,7 +78,7 @@ describe("buildSections", () => {
     expect(sections.QUESTS).toContain("[**Termo Infinito**](https://termo-infinito.example.com)");
   });
 
-  it("falls back to a placeholder message when bosses are empty", () => {
-    expect(sections.BOSSES).toContain("No bosses recorded yet");
+  it("does not render a BOSSES section (removed until there are real stories to curate)", () => {
+    expect(sections).not.toHaveProperty("BOSSES");
   });
 });

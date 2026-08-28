@@ -65,16 +65,16 @@ export function buildSections(profile: DeveloperProfile, images: ImageUrls): Rec
     .map((a) => `- ${a.icon} **${a.name}** — ${a.description}`)
     .join("\n");
 
-  const bossLines = profile.bosses
-    .map((b) => `- ${b.icon} **${b.name}** — ${b.description}`)
-    .join("\n");
+  // Bosses (config/bosses.ts, DeveloperProfile.bosses) stays in the data
+  // model but isn't rendered — removed from the README on user request
+  // until there are real war-stories to curate; re-add a BOSSES key here
+  // (and the matching marker in README.template.md) whenever that's ready.
 
   return {
     HERO: `<img src="${images.character}" alt="${profile.identity.name} — ${profile.identity.class}" width="900" />`,
     INVENTORY: inventory.length > 0 ? inventory : "_No technologies detected yet._",
     WORLDMAP: `<img src="${images.worldMap}" alt="World map" width="800" />`,
     QUESTS: questLines.length > 0 ? questLines : "_No quests yet._",
-    BOSSES: bossLines.length > 0 ? bossLines : "_No bosses recorded yet._",
     ACHIEVEMENTS: achievementLines.length > 0 ? achievementLines : "_No achievements unlocked yet._",
     STATS: `<img src="${images.stats}" alt="Stats" width="320" />`,
     CURRENTQUEST: [
