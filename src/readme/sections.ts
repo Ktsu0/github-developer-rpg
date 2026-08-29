@@ -88,9 +88,9 @@ export function buildSections(profile: DeveloperProfile, images: ImageUrls): Rec
     ACHIEVEMENTS: achievementLines.length > 0 ? achievementLines : "_No achievements unlocked yet._",
     STATS: `<img src="${images.stats}" alt="Stats" width="320" />`,
     CURRENTQUEST: [
-      `Objective: ${profile.currentQuest.objective}`,
+      `Objetivo: ${profile.currentQuest.objective}`,
       `Status: ${profile.currentQuest.statusPercent}%`,
-      `Next: ${profile.currentQuest.nextObjective}`,
+      `Próximo passo: ${profile.currentQuest.nextObjective}`,
     ].join("\n"),
   };
 }

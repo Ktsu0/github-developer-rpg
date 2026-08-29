@@ -1,7 +1,7 @@
 import type { CurrentQuest } from "../src/types";
 
 export const currentQuest: CurrentQuest = {
-  objective: "Build useful software from ideas.",
+  objective: "Forjar software que sobrevive ao mundo real — não só ao ambiente de testes.",
   statusPercent: 40,
-  nextObjective: "Create something worth remembering.",
+  nextObjective: "Publicar algo grande o bastante pra virar lenda, não só mais um commit.",
 };
