@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { generateWorldMapSvg, computeKingdoms } from "./worldMap";
 import { CHARACTER_PLACEHOLDER_EMOJI } from "./character";
-import type { DeveloperProfile, Project } from "../types";
+import { BASE_POSITIONS } from "../rpg/mapLayout";
+import type { DeveloperProfile, Project, ProjectCategory } from "../types";
 
 /** Shoelace formula — used to verify the Voronoi kingdoms tile their rectangle exactly (no gaps, no overlaps), not just "some polygons got rendered". */
 function polygonArea(points: { x: number; y: number }[]): number {
@@ -12,6 +13,20 @@ function polygonArea(points: { x: number; y: number }[]): number {
     sum += a.x * b.y - b.x * a.y;
   }
   return Math.abs(sum) / 2;
+}
+
+/** Ray-casting point-in-polygon test — with unequal CATEGORY_WEIGHTS a site's own anchor can mathematically fall outside its own weighted-Voronoi cell (regression: this exact bug shipped once a kingdom's weight was cut too aggressively relative to a close, heavy neighbor). */
+function pointInPolygon(point: { x: number; y: number }, polygon: { x: number; y: number }[]): boolean {
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const pi = polygon[i]!;
+    const pj = polygon[j]!;
+    const intersects =
+      pi.y > point.y !== pj.y > point.y &&
+      point.x < ((pj.x - pi.x) * (point.y - pi.y)) / (pj.y - pi.y) + pi.x;
+    if (intersects) inside = !inside;
+  }
+  return inside;
 }
 
 function project(overrides: Partial<Project>): Project {
@@ -157,6 +172,17 @@ describe("generateWorldMapSvg", () => {
     // The 5 cells partition the 680x600 world rectangle exactly: their areas sum to its area.
     const totalArea = areas.reduce((sum, a) => sum + a, 0);
     expect(totalArea).toBeCloseTo(680 * 600, 0);
+  });
+
+  it("keeps every kingdom's own anchor inside its own cell, even with unequal CATEGORY_WEIGHTS", () => {
+    const cells = computeKingdoms();
+    const pinnedCategories: ProjectCategory[] = ["games", "backend", "finance", "team", "projects"];
+    for (const category of pinnedCategories) {
+      const cell = cells.get(category);
+      expect(cell).toBeDefined();
+      const anchor = BASE_POSITIONS[category];
+      expect(pointInPolygon(anchor, cell!)).toBe(true);
+    }
   });
 
   it("renders a region legend and tints each region's marker with its own category color, not one uniform accent", () => {

@@ -10,11 +10,11 @@ import type { CategorizedProject } from "./categorize";
  */
 export const BASE_POSITIONS: Record<ProjectCategory, { x: number; y: number }> = {
   "starting-grounds": { x: 90, y: 420 },
-  games: { x: 190, y: 170 },
+  games: { x: 80, y: 80 },
   backend: { x: 500, y: 150 },
-  finance: { x: 500, y: 420 },
+  finance: { x: 620, y: 480 },
   team: { x: 170, y: 420 },
-  projects: { x: 350, y: 470 },
+  projects: { x: 360, y: 460 },
   uncharted: { x: 780, y: 70 },
 };
 
@@ -40,7 +40,7 @@ function scatterOffset(index: number): { dx: number; dy: number } {
   if (index === 0) return { dx: 0, dy: 0 };
   const GOLDEN_ANGLE_DEG = 137.5;
   const angle = (index * GOLDEN_ANGLE_DEG * Math.PI) / 180;
-  const radius = 30 + index * 24;
+  const radius = 36 + index * 34;
   return { dx: Math.round(radius * Math.cos(angle)), dy: Math.round(radius * Math.sin(angle)) };
 }
 
