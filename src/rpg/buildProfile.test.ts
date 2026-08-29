@@ -42,6 +42,7 @@ function rawData(): RawGithubData {
         languages: { JavaScript: 300, CSS: 20 },
         releaseCount: 1,
         hasWorkflows: true,
+        dependencies: [],
       },
       {
         name: "mystery-repo",
@@ -56,6 +57,7 @@ function rawData(): RawGithubData {
         languages: { TypeScript: 100 },
         releaseCount: 0,
         hasWorkflows: false,
+        dependencies: [],
       },
     ],
     contributions: {
@@ -107,5 +109,21 @@ describe("buildProfile", () => {
     // Financeiro (1 release) + mystery-repo (0 releases, but a homepage) = 2 crafted repos.
     // scale(2, ATTRIBUTE_CAPS.crafting=8) = round(2/8*100) = 25.
     expect(profile.attributes.crafting).toBe(25);
+  });
+
+  it("detects real tech-stack signals from repo topics and package.json dependencies", () => {
+    const raw = rawData();
+    raw.repos[0]!.topics = ["supabase"];
+    raw.repos[1]!.dependencies = ["react", "react-dom", "firebase"];
+
+    const profile = buildProfile(raw, {
+      developer: { username: "Ktsu0", name: "Gabriel Wagner", class: "Full Stack Developer" },
+      curatedProjects,
+      manualQuests,
+      bosses: [],
+      currentQuest: { objective: "Ship it", statusPercent: 50, nextObjective: "Ship more" },
+    });
+
+    expect(profile.techStack).toEqual(["Firebase", "React", "Supabase"]);
   });
 });

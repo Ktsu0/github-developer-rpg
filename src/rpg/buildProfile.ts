@@ -13,6 +13,7 @@ import { calculateXp } from "./xp";
 import { calculateLevel } from "./level";
 import { calculateAttributes } from "./attributes";
 import { calculateAchievements } from "./achievements";
+import { detectTechStack } from "./techStack";
 
 export interface BuildProfileConfig {
   developer: DeveloperConfig;
@@ -81,6 +82,7 @@ export function buildProfile(
   });
 
   const achievements = calculateAchievements(statistics, quests.length + config.manualQuests.length);
+  const techStack = detectTechStack(raw.repos);
 
   return {
     identity: config.developer,
@@ -94,5 +96,6 @@ export function buildProfile(
     achievements,
     bosses: config.bosses,
     currentQuest: config.currentQuest,
+    techStack,
   };
 }

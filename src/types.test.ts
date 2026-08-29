@@ -33,6 +33,7 @@ describe("domain types", () => {
         statusPercent: 0,
         nextObjective: "Create something worth remembering.",
       },
+      techStack: [],
     };
     expect(profile.identity.username).toBe("Ktsu0");
     expect(category).toBe("starting-grounds");

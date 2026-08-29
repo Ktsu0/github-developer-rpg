@@ -56,6 +56,35 @@ export async function fetchHasWorkflows(
   }
 }
 
+export async function fetchPackageJsonDependencies(
+  client: GithubClient,
+  owner: string,
+  repo: string
+): Promise<string[]> {
+  let content: string;
+  try {
+    const res = await client.rest.repos.getContent({ owner, repo, path: "package.json" });
+    const data = res.data as { content?: string };
+    if (!data.content) return [];
+    content = data.content;
+  } catch (err) {
+    if (typeof err === "object" && err !== null && "status" in err && err.status === 404) {
+      return [];
+    }
+    throw err;
+  }
+  try {
+    const pkg = JSON.parse(Buffer.from(content, "base64").toString("utf-8")) as {
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+    return [...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.devDependencies ?? {})];
+  } catch {
+    // Malformed/non-JSON package.json shouldn't take down the whole pipeline.
+    return [];
+  }
+}
+
 export async function fetchRepos(client: GithubClient, username: string): Promise<RawRepo[]> {
   const repos: RawRepo[] = [];
   let page = 1;
@@ -70,12 +99,13 @@ export async function fetchRepos(client: GithubClient, username: string): Promis
     for (const raw of res.data) {
       const parsed = RawRepoSchema.parse(raw);
       if (parsed.fork) continue;
-      const [languages, releaseCount, hasWorkflows] = await Promise.all([
+      const [languages, releaseCount, hasWorkflows, dependencies] = await Promise.all([
         fetchLanguages(client, username, parsed.name),
         fetchReleaseCount(client, username, parsed.name),
         fetchHasWorkflows(client, username, parsed.name),
+        fetchPackageJsonDependencies(client, username, parsed.name),
       ]);
-      repos.push({ ...parsed, languages, releaseCount, hasWorkflows });
+      repos.push({ ...parsed, languages, releaseCount, hasWorkflows, dependencies });
     }
     if (res.data.length < 100) break;
     page += 1;

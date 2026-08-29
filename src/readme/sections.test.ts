@@ -34,6 +34,7 @@ const profile: DeveloperProfile = {
   achievements: [{ id: "first-quest", name: "First Quest", icon: "🏆", description: "desc", auto: true }],
   bosses: [],
   currentQuest: { objective: "Ship it", statusPercent: 40, nextObjective: "Ship more" },
+  techStack: ["React", "Firebase"],
 };
 profile.quests = profile.projects;
 
@@ -66,6 +67,11 @@ describe("buildSections", () => {
 
   it("renders detected languages as shields.io badges", () => {
     expect(sections.INVENTORY).toContain("![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E");
+  });
+
+  it("renders detected tech-stack labels (frameworks/platforms a language alone can't show) as badges too", () => {
+    expect(sections.INVENTORY).toContain("![React](https://img.shields.io/badge/-React-61DAFB");
+    expect(sections.INVENTORY).toContain("![Firebase](https://img.shields.io/badge/-Firebase-FFCA28");
   });
 
   it("lists curated projects as quests and achievements", () => {

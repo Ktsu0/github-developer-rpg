@@ -31,6 +31,7 @@ function profile(projects: Project[]): DeveloperProfile {
     achievements: [],
     bosses: [],
     currentQuest: { objective: "x", statusPercent: 0, nextObjective: "y" },
+    techStack: [],
   };
 }
 

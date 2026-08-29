@@ -123,4 +123,6 @@ export interface DeveloperProfile {
   achievements: Achievement[];
   bosses: Boss[];
   currentQuest: CurrentQuest;
+  /** Frameworks/platforms detected from real repo topics or package.json dependencies (src/rpg/techStack.ts) — not derivable from `language` alone. */
+  techStack: string[];
 }

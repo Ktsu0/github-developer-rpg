@@ -21,6 +21,8 @@ export type RawRepo = z.infer<typeof RawRepoSchema> & {
   languages: Record<string, number>;
   releaseCount: number;
   hasWorkflows: boolean;
+  /** npm package names from package.json's dependencies + devDependencies, or [] if there's no package.json. */
+  dependencies: string[];
 };
 
 export const RawUserSchema = z.object({

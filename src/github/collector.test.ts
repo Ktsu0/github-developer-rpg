@@ -40,7 +40,11 @@ function fakeClient(): GithubClient {
         }),
         listLanguages: async () => ({ data: { CSS: 100, HTML: 20 } }),
         listReleases: async () => ({ data: [{ id: 1 }] }),
-        getContent: async () => {
+        getContent: async ({ path }) => {
+          if (path === "package.json") {
+            const pkg = JSON.stringify({ dependencies: { react: "^18.0.0" }, devDependencies: { vite: "^5.0.0" } });
+            return { data: { content: Buffer.from(pkg, "utf-8").toString("base64") } };
+          }
           throw { status: 404 };
         },
       },
@@ -75,6 +79,7 @@ describe("collectGithubData", () => {
     expect(repo?.languages).toEqual({ CSS: 100, HTML: 20 });
     expect(repo?.releaseCount).toBe(1);
     expect(repo?.hasWorkflows).toBe(false);
+    expect(repo?.dependencies).toEqual(["react", "vite"]);
     expect(result.contributions.totalCommitContributions).toBe(42);
     expect(result.closedIssues).toBe(3);
     expect(result.mergedPullRequests).toBe(1);

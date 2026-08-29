@@ -14,6 +14,7 @@ const profile: DeveloperProfile = {
   achievements: [],
   bosses: [],
   currentQuest: { objective: "x", statusPercent: 0, nextObjective: "y" },
+  techStack: [],
 };
 
 describe("generateStatsSvg", () => {

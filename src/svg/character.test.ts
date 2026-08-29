@@ -15,6 +15,7 @@ function profile(overrides: Partial<DeveloperProfile> = {}): DeveloperProfile {
     achievements: [],
     bosses: [],
     currentQuest: { objective: "x", statusPercent: 0, nextObjective: "y" },
+    techStack: [],
     ...overrides,
   };
 }

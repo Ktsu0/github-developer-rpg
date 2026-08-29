@@ -16,6 +16,7 @@ function repo(overrides: Partial<RawRepo>): RawRepo {
     languages: { TypeScript: 100 },
     releaseCount: 0,
     hasWorkflows: false,
+    dependencies: [],
     ...overrides,
   };
 }
