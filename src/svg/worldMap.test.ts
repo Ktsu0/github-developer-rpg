@@ -1,7 +1,18 @@
 import { describe, it, expect } from "vitest";
-import { generateWorldMapSvg } from "./worldMap";
+import { generateWorldMapSvg, computeKingdoms } from "./worldMap";
 import { CHARACTER_PLACEHOLDER_EMOJI } from "./character";
 import type { DeveloperProfile, Project } from "../types";
+
+/** Shoelace formula — used to verify the Voronoi kingdoms tile their rectangle exactly (no gaps, no overlaps), not just "some polygons got rendered". */
+function polygonArea(points: { x: number; y: number }[]): number {
+  let sum = 0;
+  for (let i = 0; i < points.length; i += 1) {
+    const a = points[i]!;
+    const b = points[(i + 1) % points.length]!;
+    sum += a.x * b.y - b.x * a.y;
+  }
+  return Math.abs(sum) / 2;
+}
 
 function project(overrides: Partial<Project>): Project {
   return {
@@ -135,6 +146,17 @@ describe("generateWorldMapSvg", () => {
     );
     const svg = generateWorldMapSvg(profile(many));
     expect(svg).toContain("+3 more");
+  });
+
+  it("tiles the 5 kingdoms across the whole world zone with no gaps and no overlap (a real Voronoi partition, not decorative blobs)", () => {
+    const cells = computeKingdoms();
+    expect(cells.size).toBe(5);
+    const areas = Array.from(cells.values()).map(polygonArea);
+    // No degenerate (zero-area) cell — every category actually claims territory.
+    for (const area of areas) expect(area).toBeGreaterThan(1000);
+    // The 5 cells partition the 680x600 world rectangle exactly: their areas sum to its area.
+    const totalArea = areas.reduce((sum, a) => sum + a, 0);
+    expect(totalArea).toBeCloseTo(680 * 600, 0);
   });
 
   it("renders a region legend and tints each region's marker with its own category color, not one uniform accent", () => {

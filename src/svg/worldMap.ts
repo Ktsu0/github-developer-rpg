@@ -52,66 +52,117 @@ function categoryColor(category: ProjectCategory): string {
   return CATEGORY_COLORS[category] ?? THEME.accent;
 }
 
-/** Deterministic string hash — seeds the territory jitter below without a random-number dependency, so the same profile always renders the same map. */
-function hashSeed(input: string): number {
-  let h = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    h = (h * 31 + input.charCodeAt(i)) >>> 0;
-  }
-  return h;
+interface Point {
+  x: number;
+  y: number;
 }
 
 /**
- * A jagged closed polygon standing in for a "claimed territory" outline —
- * points at a fixed angle step, radius jittered per-point from a seed
- * derived from the category name. Deliberately angular (not a smoothed
- * blob): reads as a tactical-map region border, matching the HUD/terminal
- * aesthetic of the rest of the generated SVGs.
+ * Sutherland-Hodgman polygon clipping against the half-plane closer to
+ * `site` than to `other` (i.e. one side of their perpendicular bisector).
+ * Applying this once per rival site turns a bounding rectangle into a
+ * proper Voronoi cell — the standard small-N way to build one without a
+ * full Fortune's-algorithm implementation.
  */
-function renderTerritory(category: ProjectCategory, cx: number, cy: number): string {
-  const color = categoryColor(category);
-  const seed = hashSeed(category);
-  const pointCount = 10;
-  const baseRadius = 132;
-  const points: string[] = [];
-  for (let i = 0; i < pointCount; i += 1) {
-    const angle = (i / pointCount) * Math.PI * 2;
-    const jitterByte = (seed >> (i * 3) % 29) & 0xff;
-    const jitter = 0.72 + (jitterByte / 255) * 0.42;
-    const r = baseRadius * jitter;
-    const x = cx + r * Math.cos(angle);
-    const y = cy + r * Math.sin(angle) * 0.82;
-    points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+function clipToHalfPlane(polygon: Point[], site: Point, other: Point): Point[] {
+  const midX = (site.x + other.x) / 2;
+  const midY = (site.y + other.y) / 2;
+  const normalX = site.x - other.x;
+  const normalY = site.y - other.y;
+  const side = (p: Point) => (p.x - midX) * normalX + (p.y - midY) * normalY;
+
+  const output: Point[] = [];
+  for (let i = 0; i < polygon.length; i += 1) {
+    const curr = polygon[i]!;
+    const prev = polygon[(i - 1 + polygon.length) % polygon.length]!;
+    const currSide = side(curr);
+    const prevSide = side(prev);
+    if (Math.sign(currSide) !== Math.sign(prevSide) && currSide !== 0 && prevSide !== 0) {
+      const t = prevSide / (prevSide - currSide);
+      output.push({ x: prev.x + t * (curr.x - prev.x), y: prev.y + t * (curr.y - prev.y) });
+    }
+    if (currSide >= 0) output.push(curr);
   }
-  const polygon = points.join(" ");
-  return `<polygon points="${polygon}" fill="${color}" opacity="0.1"/>
-  <polygon points="${polygon}" fill="none" stroke="${color}" stroke-width="1.5" opacity="0.4"/>`;
+  return output;
+}
+
+/** The Voronoi cell for `site` among `others`, clipped to `rect` — the region of the rectangle strictly closer to `site` than to any rival. */
+function voronoiCell(site: Point, others: Point[], rect: { x0: number; y0: number; x1: number; y1: number }): Point[] {
+  let polygon: Point[] = [
+    { x: rect.x0, y: rect.y0 },
+    { x: rect.x1, y: rect.y0 },
+    { x: rect.x1, y: rect.y1 },
+    { x: rect.x0, y: rect.y1 },
+  ];
+  for (const other of others) {
+    if (polygon.length === 0) break;
+    polygon = clipToHalfPlane(polygon, site, other);
+  }
+  return polygon;
+}
+
+function polygonPoints(polygon: Point[]): string {
+  return polygon.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+}
+
+/** The full world zone, tiled edge to edge — kingdoms border each other directly, no unclaimed gap between them (user feedback: don't be stingy with space). */
+const WORLD_RECT = { x0: 0, y0: 0, x1: SIDEBAR_DIVIDER_X, y1: VIEWBOX_HEIGHT };
+
+/** One Voronoi cell per pinned category, keyed by category — computed once per render and reused for both the fill and the shared border pass. Exported for the tiling-correctness test in worldMap.test.ts. */
+export function computeKingdoms(): Map<ProjectCategory, Point[]> {
+  const sites = PINNED_CATEGORIES.map((category) => ({ category, point: BASE_POSITIONS[category] }));
+  const cells = new Map<ProjectCategory, Point[]>();
+  for (const { category, point } of sites) {
+    const rivals = sites.filter((s) => s.category !== category).map((s) => s.point);
+    cells.set(category, voronoiCell(point, rivals, WORLD_RECT));
+  }
+  return cells;
 }
 
 function renderTerrainMotif(category: ProjectCategory, cx: number, cy: number): string {
   const motif = TERRAIN_MOTIFS[category];
   if (!motif) return "";
   const color = categoryColor(category);
-  return `<circle cx="${cx}" cy="${cy}" r="50" fill="${color}" opacity="0.09"/>
+  return `<circle cx="${cx}" cy="${cy}" r="50" fill="${color}" opacity="0.1"/>
   <text x="${cx + 8}" y="${cy + 6}" font-size="82" text-anchor="middle" opacity="0.18">${motif}</text>`;
 }
 
-function renderTerrain(): string {
-  return PINNED_CATEGORIES.map((category) => {
+/**
+ * Renders the kingdoms as a proper jigsaw: each cell filled solid in its
+ * category color with no gap or overlap between neighbors (they share an
+ * exact edge by construction), then every border re-stroked once in a
+ * neutral tone so two adjacent colors don't fight along the same line.
+ */
+function renderKingdoms(cells: Map<ProjectCategory, Point[]>): string {
+  const fills = PINNED_CATEGORIES.map((category) => {
+    const cell = cells.get(category);
+    if (!cell || cell.length === 0) return "";
+    return `<polygon points="${polygonPoints(cell)}" fill="${categoryColor(category)}" opacity="0.16"/>`;
+  }).join("\n  ");
+  const borders = PINNED_CATEGORIES.map((category) => {
+    const cell = cells.get(category);
+    if (!cell || cell.length === 0) return "";
+    return `<polygon points="${polygonPoints(cell)}" fill="none" stroke="${THEME.pathBase}" stroke-width="1.5" opacity="0.75"/>`;
+  }).join("\n  ");
+  const motifs = PINNED_CATEGORIES.map((category) => {
     const base = BASE_POSITIONS[category];
-    return `${renderTerritory(category, base.x, base.y)}
-  ${renderTerrainMotif(category, base.x, base.y)}`;
-  }).join("\n");
+    return renderTerrainMotif(category, base.x, base.y);
+  }).join("\n  ");
+  return `${fills}\n  ${borders}\n  ${motifs}`;
 }
 
-/** Deterministic scatter of faint "unexplored territory" specks — fills otherwise empty canvas so it reads as a map, not a void. */
+/**
+ * Deterministic scatter of faint "unexplored territory" specks — confined
+ * to the sidebar strip now that the world zone itself is fully claimed by
+ * a kingdom: the fog belongs where the Uncharted Land list already says
+ * "not yet on the map", not scattered over land that has an owner.
+ */
 const AMBIENT_DOTS: { x: number; y: number; r: number }[] = [
-  { x: 60, y: 50, r: 1.4 }, { x: 340, y: 40, r: 1 }, { x: 620, y: 60, r: 1.2 },
-  { x: 60, y: 260, r: 1 }, { x: 320, y: 280, r: 1.3 }, { x: 640, y: 250, r: 1 },
-  { x: 60, y: 560, r: 1.2 }, { x: 300, y: 580, r: 1 }, { x: 620, y: 570, r: 1.3 },
-  { x: 460, y: 40, r: 1 }, { x: 260, y: 130, r: 1.1 }, { x: 660, y: 350, r: 1 },
-  { x: 40, y: 380, r: 1.2 }, { x: 240, y: 470, r: 1 }, { x: 500, y: 500, r: 1.1 },
-  { x: 440, y: 240, r: 1 }, { x: 220, y: 340, r: 1.2 }, { x: 560, y: 300, r: 1 },
+  { x: 700, y: 40, r: 1.2 }, { x: 760, y: 50, r: 1 }, { x: 830, y: 45, r: 1.3 },
+  { x: 880, y: 90, r: 1 }, { x: 700, y: 470, r: 1.2 }, { x: 760, y: 500, r: 1 },
+  { x: 820, y: 480, r: 1.3 }, { x: 870, y: 520, r: 1 }, { x: 700, y: 550, r: 1.1 },
+  { x: 850, y: 200, r: 1 }, { x: 810, y: 150, r: 1.2 }, { x: 890, y: 300, r: 1 },
+  { x: 720, y: 210, r: 1.1 }, { x: 780, y: 430, r: 1 },
 ];
 
 function renderAmbientDots(): string {
@@ -250,6 +301,7 @@ export function generateWorldMapSvg(profile: DeveloperProfile): string {
   const uncharted = profile.projects.filter((p) => p.category === "uncharted");
   const regions = pinned.map(renderRegion).join("\n");
   const connectors = renderRegionConnectors(pinned);
+  const kingdoms = computeKingdoms();
   const current = findCurrentRegion(profile.projects);
   const marker = current
     ? `  <circle cx="${current.region.x}" cy="${current.region.y - 24}" r="9" fill="none" stroke="${THEME.glow}" stroke-width="2">
@@ -264,7 +316,7 @@ export function generateWorldMapSvg(profile: DeveloperProfile): string {
   ${panelBackground(VIEWBOX_WIDTH, VIEWBOX_HEIGHT)}
   ${panelGrid(VIEWBOX_WIDTH, VIEWBOX_HEIGHT)}
   ${renderAmbientDots()}
-  ${renderTerrain()}
+  ${renderKingdoms(kingdoms)}
   ${renderRoads()}
   ${connectors}
   ${titleBar("🗺️", "WORLD MAP")}
