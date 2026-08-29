@@ -97,6 +97,7 @@ function renderRegion(project: Project): string {
   const { region } = project;
   const label = escapeXml(shortDisplayName(project));
   return `  <g>
+    <ellipse cx="${region.x}" cy="${region.y + 4}" rx="34" ry="16" fill="${THEME.accent}" opacity="0.07"/>
     <text x="${region.x}" y="${region.y}" font-size="20" text-anchor="middle">${region.icon}</text>
     <text x="${region.x}" y="${region.y + 16}" font-family="${THEME.font}" font-size="9" fill="${THEME.accent}" text-anchor="middle">${label}</text>
   </g>`;

@@ -10,11 +10,11 @@ import type { CategorizedProject } from "./categorize";
  */
 export const BASE_POSITIONS: Record<ProjectCategory, { x: number; y: number }> = {
   "starting-grounds": { x: 90, y: 420 },
-  games: { x: 230, y: 110 },
-  backend: { x: 420, y: 70 },
-  finance: { x: 520, y: 260 },
-  team: { x: 170, y: 260 },
-  projects: { x: 380, y: 420 },
+  games: { x: 150, y: 130 },
+  backend: { x: 430, y: 110 },
+  finance: { x: 470, y: 360 },
+  team: { x: 130, y: 350 },
+  projects: { x: 300, y: 460 },
   uncharted: { x: 700, y: 70 },
 };
 
@@ -28,6 +28,22 @@ export const CATEGORY_ICONS: Record<ProjectCategory, string> = {
   uncharted: "🌫️",
 };
 
+/**
+ * Scatters same-category projects around their anchor on a golden-angle
+ * spiral instead of stacking them in a straight line — a straight vertical
+ * list read as "a list", not "a map" (user feedback). The first project in
+ * a category still sits right on the anchor; each following one lands
+ * further out at a different angle, like separate settlements dotted
+ * across the same territory.
+ */
+function scatterOffset(index: number): { dx: number; dy: number } {
+  if (index === 0) return { dx: 0, dy: 0 };
+  const GOLDEN_ANGLE_DEG = 137.5;
+  const angle = (index * GOLDEN_ANGLE_DEG * Math.PI) / 180;
+  const radius = 30 + index * 24;
+  return { dx: Math.round(radius * Math.cos(angle)), dy: Math.round(radius * Math.sin(angle)) };
+}
+
 export function assignMapPositions(projects: CategorizedProject[]): Project[] {
   const counters: Partial<Record<ProjectCategory, number>> = {};
   return projects.map((project) => {
@@ -35,16 +51,13 @@ export function assignMapPositions(projects: CategorizedProject[]): Project[] {
     const base = BASE_POSITIONS[project.category];
     const index = counters[project.category] ?? 0;
     counters[project.category] = index + 1;
-    // Stacked vertically, not in a grid: region labels are full project
-    // names (can run 15-20+ characters) — spreading horizontally at 36px
-    // spacing made adjacent labels in the same cluster overlap as soon as
-    // a category held more than one pinned project.
+    const { dx, dy } = scatterOffset(index);
     const region: MapNode = {
       id: project.repository,
       label: project.name,
       icon: iconOverride ?? CATEGORY_ICONS[project.category],
-      x: base.x,
-      y: base.y + index * 34,
+      x: Math.min(560, Math.max(40, base.x + dx)),
+      y: Math.min(500, Math.max(40, base.y + dy)),
       category: project.category,
     };
     return { ...projectFields, region };

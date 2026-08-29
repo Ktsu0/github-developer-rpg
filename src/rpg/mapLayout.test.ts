@@ -25,13 +25,17 @@ describe("assignMapPositions", () => {
     expect(typeof result?.region.y).toBe("number");
   });
 
-  it("stacks multiple projects in the same category vertically (not side by side — long labels overlapped horizontally)", () => {
+  it("scatters multiple projects in the same category apart from each other (not stacked in a straight line)", () => {
     const results = assignMapPositions([
       baseProject({ repository: "a" }),
       baseProject({ repository: "b" }),
+      baseProject({ repository: "c" }),
     ]);
-    expect(results[0]?.region.x).toBe(results[1]?.region.x);
-    expect(results[0]?.region.y).not.toBe(results[1]?.region.y);
+    const [a, b, c] = results;
+    expect(a?.region.x).not.toBe(b?.region.x);
+    expect(a?.region.y).not.toBe(b?.region.y);
+    expect(b?.region.x).not.toBe(c?.region.x);
+    expect(b?.region.y).not.toBe(c?.region.y);
   });
 
   it("places starting-grounds at its own dedicated position", () => {
