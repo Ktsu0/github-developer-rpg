@@ -40,9 +40,10 @@ describe("generateWorldMapSvg", () => {
     const svg = generateWorldMapSvg(profile([project({})]));
     // Regression: terrain motifs were opacity 0.06 (effectively invisible)
     // before user feedback that the map looked like an empty black plane.
-    expect(svg).toContain('opacity="0.16"');
+    expect(svg).toContain('opacity="0.18"');
     expect(svg).not.toContain('opacity="0.06"');
-    // Landmass blobs and the ambient dot scatter fill in the empty canvas.
+    // Landmass territory outlines, marker ground ellipses, and the ambient dot scatter fill in the empty canvas.
+    expect((svg.match(/<polygon/g) ?? []).length).toBeGreaterThan(0);
     expect((svg.match(/<ellipse/g) ?? []).length).toBeGreaterThan(0);
     expect((svg.match(/<circle cx="\d+" cy="\d+" r="1(\.\d+)?" /g) ?? []).length).toBeGreaterThan(10);
   });
@@ -134,5 +135,43 @@ describe("generateWorldMapSvg", () => {
     );
     const svg = generateWorldMapSvg(profile(many));
     expect(svg).toContain("+3 more");
+  });
+
+  it("renders a region legend and tints each region's marker with its own category color, not one uniform accent", () => {
+    const svg = generateWorldMapSvg(
+      profile([
+        project({ category: "finance", region: { id: "Financeiro", label: "Financeiro", icon: "🏦", x: 500, y: 420, category: "finance" } }),
+        project({
+          name: "RPG Lost World",
+          repository: "RPG-Lost-World",
+          category: "games",
+          region: { id: "RPG-Lost-World", label: "RPG Lost World", icon: "🎮", x: 190, y: 170, category: "games" },
+        }),
+      ])
+    );
+    expect(svg).toContain("REGIONS");
+    // Finance is gold, games is purple — distinct labeled markers, not both the same teal accent.
+    expect(svg).toContain('fill="#e0b954" text-anchor="middle">Financeiro');
+    expect(svg).toContain('fill="#b98cf2" text-anchor="middle">RPG Lost World');
+  });
+
+  it("connects same-region markers with a settlement line when a category has more than one pinned project", () => {
+    const svg = generateWorldMapSvg(
+      profile([
+        project({
+          name: "Site Mystic",
+          repository: "siteMysticReact",
+          category: "projects",
+          region: { id: "siteMysticReact", label: "Site Mystic", icon: "🏠", x: 350, y: 470, category: "projects" },
+        }),
+        project({
+          name: "Copa do Mundo",
+          repository: "Copa-do-Mundo",
+          category: "projects",
+          region: { id: "Copa-do-Mundo", label: "Copa do Mundo", icon: "🏠", x: 300, y: 500, category: "projects" },
+        }),
+      ])
+    );
+    expect(svg).toContain('<line x1="350" y1="470" x2="300" y2="500"');
   });
 });

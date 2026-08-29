@@ -2,20 +2,20 @@ import type { MapNode, Project, ProjectCategory } from "../types";
 import type { CategorizedProject } from "./categorize";
 
 /**
- * Positions live inside a ~600px-wide "world zone" (x < 580) — the World
- * Map SVG reserves the strip to the right of that for a compact sidebar
- * list of not-yet-curated ("uncharted") repos instead of pinning them
- * individually, which used to crowd/overlap once there were more than a
- * couple of them (see src/svg/worldMap.ts).
+ * Positions live inside a ~640px-wide "world zone" (x < 680) — the World
+ * Map SVG (900×600) reserves the strip to the right of that for a compact
+ * sidebar list of not-yet-curated ("uncharted") repos instead of pinning
+ * them individually, which used to crowd/overlap once there were more
+ * than a couple of them (see src/svg/worldMap.ts).
  */
 export const BASE_POSITIONS: Record<ProjectCategory, { x: number; y: number }> = {
   "starting-grounds": { x: 90, y: 420 },
-  games: { x: 150, y: 130 },
-  backend: { x: 430, y: 110 },
-  finance: { x: 470, y: 360 },
-  team: { x: 130, y: 350 },
-  projects: { x: 300, y: 460 },
-  uncharted: { x: 700, y: 70 },
+  games: { x: 190, y: 170 },
+  backend: { x: 500, y: 150 },
+  finance: { x: 500, y: 420 },
+  team: { x: 170, y: 420 },
+  projects: { x: 350, y: 470 },
+  uncharted: { x: 780, y: 70 },
 };
 
 export const CATEGORY_ICONS: Record<ProjectCategory, string> = {
@@ -56,8 +56,8 @@ export function assignMapPositions(projects: CategorizedProject[]): Project[] {
       id: project.repository,
       label: project.name,
       icon: iconOverride ?? CATEGORY_ICONS[project.category],
-      x: Math.min(560, Math.max(40, base.x + dx)),
-      y: Math.min(500, Math.max(40, base.y + dy)),
+      x: Math.min(650, Math.max(40, base.x + dx)),
+      y: Math.min(560, Math.max(40, base.y + dy)),
       category: project.category,
     };
     return { ...projectFields, region };
