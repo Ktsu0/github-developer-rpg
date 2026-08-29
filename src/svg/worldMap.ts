@@ -1,12 +1,20 @@
 import type { DeveloperProfile, Project, ProjectCategory } from "../types";
-import { BASE_POSITIONS, CATEGORY_ICONS } from "../rpg/mapLayout";
+import {
+  BASE_POSITIONS,
+  CATEGORY_ICONS,
+  PINNED_CATEGORIES,
+  VIEWBOX_WIDTH,
+  VIEWBOX_HEIGHT,
+  SIDEBAR_DIVIDER_X,
+  computeKingdoms,
+  type Point,
+} from "../rpg/mapLayout";
 import { THEME, escapeXml } from "./theme";
 import { panelBackground, panelChrome, panelGrid, titleBar } from "./frame";
 import { CHARACTER_PLACEHOLDER_EMOJI } from "./character";
 
-const VIEWBOX_WIDTH = 900;
-const VIEWBOX_HEIGHT = 600;
-const SIDEBAR_DIVIDER_X = 680;
+export { computeKingdoms };
+
 const SIDEBAR_X = 700;
 const SIDEBAR_MAX_ROWS = 10;
 const UNCHARTED_PREFIX = "Uncharted Land — ";
@@ -37,29 +45,6 @@ const CATEGORY_COLORS: Partial<Record<ProjectCategory, string>> = {
   projects: "#f2994a",
 };
 
-/**
- * Relative "claim strength" per kingdom (radius-squared units — see
- * clipToHalfPlane) — a plain Voronoi diagram only lets territory size
- * follow anchor spacing, with no direct way to say "Projetos should be
- * bigger" or "Finanças should be smaller" (user feedback). Higher weight
- * pushes a kingdom's shared borders outward into its neighbors' space.
- */
-const CATEGORY_WEIGHTS: Partial<Record<ProjectCategory, number>> = {
-  games: 16900,
-  backend: 22500,
-  finance: 8100,
-  team: 22500,
-  projects: 55000,
-};
-
-/**
- * "starting-grounds" and "uncharted" are deliberately excluded from map
- * pins: the first few course projects were cluttering the map for little
- * payoff (they're already visible in the Quest Log), and uncharted repos
- * get the compact sidebar instead (renderUnchartedSidebar).
- */
-const PINNED_CATEGORIES: ProjectCategory[] = ["games", "backend", "finance", "team", "projects"];
-
 /** Roads no longer radiate from "starting-grounds" now that it isn't pinned — a fixed central hub instead. */
 const ROAD_HUB = { x: 400, y: 330 };
 
@@ -67,91 +52,8 @@ function categoryColor(category: ProjectCategory): string {
   return CATEGORY_COLORS[category] ?? THEME.accent;
 }
 
-interface Point {
-  x: number;
-  y: number;
-}
-
-interface WeightedSite extends Point {
-  weight: number;
-}
-
-/**
- * Sutherland-Hodgman polygon clipping against the half-plane closer to
- * `site` than to `other`, in the additively-weighted sense: the boundary
- * is still perpendicular to the line joining the two sites (so this is
- * still a straight cut), just shifted along that line toward whichever
- * site has the smaller weight — a power diagram / weighted Voronoi
- * instead of a plain one, which is what makes per-kingdom size directly
- * controllable via CATEGORY_WEIGHTS instead of only via anchor spacing.
- * Applying this once per rival site turns a bounding rectangle into a
- * proper cell — the standard small-N way to build one without a full
- * Fortune's-algorithm implementation.
- */
-function clipToHalfPlane(polygon: Point[], site: WeightedSite, other: WeightedSite): Point[] {
-  const dx = other.x - site.x;
-  const dy = other.y - site.y;
-  const dist2 = dx * dx + dy * dy;
-  // t=0.5 is the plain (unweighted) midpoint; a higher site weight relative
-  // to `other` pushes t (and so the cut) further toward `other`, growing
-  // site's share of the boundary.
-  const t = dist2 === 0 ? 0.5 : 0.5 + (site.weight - other.weight) / (2 * dist2);
-  const midX = site.x + t * dx;
-  const midY = site.y + t * dy;
-  const normalX = site.x - other.x;
-  const normalY = site.y - other.y;
-  const side = (p: Point) => (p.x - midX) * normalX + (p.y - midY) * normalY;
-
-  const output: Point[] = [];
-  for (let i = 0; i < polygon.length; i += 1) {
-    const curr = polygon[i]!;
-    const prev = polygon[(i - 1 + polygon.length) % polygon.length]!;
-    const currSide = side(curr);
-    const prevSide = side(prev);
-    if (Math.sign(currSide) !== Math.sign(prevSide) && currSide !== 0 && prevSide !== 0) {
-      const s = prevSide / (prevSide - currSide);
-      output.push({ x: prev.x + s * (curr.x - prev.x), y: prev.y + s * (curr.y - prev.y) });
-    }
-    if (currSide >= 0) output.push(curr);
-  }
-  return output;
-}
-
-/** The weighted-Voronoi cell for `site` among `others`, clipped to `rect` — the region of the rectangle claimed by `site` under CATEGORY_WEIGHTS. */
-function voronoiCell(site: WeightedSite, others: WeightedSite[], rect: { x0: number; y0: number; x1: number; y1: number }): Point[] {
-  let polygon: Point[] = [
-    { x: rect.x0, y: rect.y0 },
-    { x: rect.x1, y: rect.y0 },
-    { x: rect.x1, y: rect.y1 },
-    { x: rect.x0, y: rect.y1 },
-  ];
-  for (const other of others) {
-    if (polygon.length === 0) break;
-    polygon = clipToHalfPlane(polygon, site, other);
-  }
-  return polygon;
-}
-
 function polygonPoints(polygon: Point[]): string {
   return polygon.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-}
-
-/** The full world zone, tiled edge to edge — kingdoms border each other directly, no unclaimed gap between them (user feedback: don't be stingy with space). */
-const WORLD_RECT = { x0: 0, y0: 0, x1: SIDEBAR_DIVIDER_X, y1: VIEWBOX_HEIGHT };
-
-/** One weighted-Voronoi cell per pinned category, keyed by category — computed once per render and reused for both the fill and the shared border pass. Exported for the tiling-correctness test in worldMap.test.ts. */
-export function computeKingdoms(): Map<ProjectCategory, Point[]> {
-  const sites: (WeightedSite & { category: ProjectCategory })[] = PINNED_CATEGORIES.map((category) => ({
-    category,
-    ...BASE_POSITIONS[category],
-    weight: CATEGORY_WEIGHTS[category] ?? 22500,
-  }));
-  const cells = new Map<ProjectCategory, Point[]>();
-  for (const site of sites) {
-    const rivals = sites.filter((s) => s.category !== site.category);
-    cells.set(site.category, voronoiCell(site, rivals, WORLD_RECT));
-  }
-  return cells;
 }
 
 function renderTerrainMotif(category: ProjectCategory, cx: number, cy: number): string {

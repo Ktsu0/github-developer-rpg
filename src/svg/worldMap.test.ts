@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { generateWorldMapSvg, computeKingdoms } from "./worldMap";
 import { CHARACTER_PLACEHOLDER_EMOJI } from "./character";
-import { BASE_POSITIONS } from "../rpg/mapLayout";
+import { BASE_POSITIONS, assignMapPositions } from "../rpg/mapLayout";
+import type { CategorizedProject } from "../rpg/categorize";
 import type { DeveloperProfile, Project, ProjectCategory } from "../types";
 
 /** Shoelace formula — used to verify the Voronoi kingdoms tile their rectangle exactly (no gaps, no overlaps), not just "some polygons got rendered". */
@@ -182,6 +183,36 @@ describe("generateWorldMapSvg", () => {
       expect(cell).toBeDefined();
       const anchor = BASE_POSITIONS[category];
       expect(pointInPolygon(anchor, cell!)).toBe(true);
+    }
+  });
+
+  it("keeps every SCATTERED marker (not just the anchor) inside its own kingdom — regression: PlantaGamer rendered on the border between Time and Projetos once a kingdom had multiple projects", () => {
+    function categorized(overrides: Partial<CategorizedProject>): CategorizedProject {
+      return {
+        name: "x",
+        repository: "x",
+        description: "",
+        category: "projects",
+        status: "completed",
+        curated: true,
+        url: "https://github.com/Ktsu0/x",
+        source: { language: "JavaScript", topics: [], createdAt: "2026-01-01", pushedAt: "2026-01-01" },
+        ...overrides,
+      };
+    }
+    // The exact shape that broke before: 3 projects sharing a category (like Antes de Dormir / Site Mystic / Copa do Mundo in "projects"), plus a 2nd project landing in a smaller neighbor ("games").
+    const positioned = assignMapPositions([
+      categorized({ repository: "a", category: "projects" }),
+      categorized({ repository: "b", category: "projects" }),
+      categorized({ repository: "c", category: "projects" }),
+      categorized({ repository: "d", category: "games" }),
+      categorized({ repository: "e", category: "games" }),
+    ]);
+    const cells = computeKingdoms();
+    for (const project of positioned) {
+      const cell = cells.get(project.category);
+      expect(cell).toBeDefined();
+      expect(pointInPolygon(project.region, cell!)).toBe(true);
     }
   });
 
